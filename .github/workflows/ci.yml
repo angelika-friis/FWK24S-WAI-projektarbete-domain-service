@@ -1,0 +1,19 @@
+name: Discord Action
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  react_on_push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Discord notification
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      uses: Ilshidur/action-discord@master
+      with:
+        args: |
+            📢 Push i **${{ github.repository }}**
+            av **${{ github.actor }}**.
+            [_${{ github.event.head_commit.message }}_](${{ github.event.head_commit.url }})
