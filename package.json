@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/angelika-friis/FWK24S-WAI-projektarbete-domain-service#readme",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
