@@ -12,15 +12,17 @@ const app = express();
 
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log("origin is: ", origin)
     if (!origin && config.ALLOW_EMPTY_ORIGIN) {
       callback(null, true); // tillåt tom origin i dev
     } else if (origin && config.CORS_ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true); // tillåt konfigurerade origins
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS 123'));
     }
   },
   credentials: true,
+  allowedHeaders: ['Content-Type','Authorization','X-CSRF-Token','X-Requested-With'],
 };
 
 if(config.CORS_ENABLED) {
@@ -38,5 +40,14 @@ app.use('/journal', journalRoutes);
 app.use('/gdpr', gdprRoutes);
 app.use('/me', meRoutes);
 app.use('/consent', consentRoutes);
+
+app.use((err, _req, res, _next) => {
+  console.error('[ERROR]', err); // full stack to server console
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    error: err.message || 'Internal Server Error',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
 
 module.exports = app;

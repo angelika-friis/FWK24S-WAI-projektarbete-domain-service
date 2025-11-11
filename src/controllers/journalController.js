@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const { todayISODate } = require("../utils/dates.js");
 
 const postSave = async (req, res) => {
+    console.log("Post save!")
     try {
         const { title, content, author } = req.body.data || {};
 
@@ -46,6 +47,7 @@ const postSave = async (req, res) => {
 };
 
 const getJournal = async (req, res) => {
+    console.log("get journal!")
     try {
         const { authorId, date } = req.params;
 

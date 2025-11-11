@@ -3,15 +3,13 @@ const {createAccessToken} = require('../utils/tokenUtils')
 const config = require('../config.js');
 
 module.exports = async function verifyAuth(req, res, next) {
-    /*const authHeader = req.headers.authorization
+    const authHeader = req.headers.authorization
 
 	let token;
 
 	if (authHeader && authHeader.startsWith("Bearer ")) {
 		token = authHeader.split(" ")[1];
-	}*/
-
-	const token = req.cookies.accessToken;
+	}
 
 	if (!token) {
 		return res.status(401).json({ message: "Authorization token required." })
@@ -19,6 +17,8 @@ module.exports = async function verifyAuth(req, res, next) {
 
     try {
 		const decoded = jwt.verify(token, config.JWT_SECRET)
+		console.log("verifyAuth decoded is ", decoded)
+		req.user = decoded;
 		next()
 	}
 	catch (error) {

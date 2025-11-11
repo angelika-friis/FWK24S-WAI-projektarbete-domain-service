@@ -12,6 +12,8 @@ module.exports = async function csrfProtection(req, res, next) {
 
     const accessToken = req.cookies.accessToken;
 
+    console.log("Access token is ", accessToken)
+
     if(!accessToken) return res.status(401).json({ message: 'Authorization token required' });
 
     try {

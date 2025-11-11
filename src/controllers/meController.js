@@ -9,10 +9,9 @@ const { logEvent } = require('../services/auditLogService');
 
 const exportUserDataZip = async (req, res) => {
   try {
-    const decodedUser = jwt.decode(req.session.user);
-    const { userId } = decodedUser;
-    const reauthenticated = await requireReauth(req, userId);
-    if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
+    const { userId } = req.user;
+    //const reauthenticated = await requireReauth(req, userId);
+    //if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
 
     await logEvent(userId, 'DATA_REQUEST', { format: 'ZIP' });
 
@@ -42,7 +41,7 @@ const exportUserDataZip = async (req, res) => {
     res
       .set({
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment;  filename="user-${userId}-export.zip`,
+        "Content-Disposition": `attachment; filename="user-${userId}-export.zip"`,
       })
       .status(200)
       .send(buffer);
@@ -54,48 +53,71 @@ const exportUserDataZip = async (req, res) => {
 };
 
 const exportUserDataPdf = async (req, res) => {
+  const { userId } = req.user;
+
   try {
-    const decodedUser = jwt.decode(req.session.user);
-    const { userId, } = decodedUser;
-    const reauthenticated = await requireReauth(req, userId);
-    if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
+    // const reauthenticated = await requireReauth(req, userId);
+    // if (!reauthenticated) {
+    //   return res.status(403).json({ error: "Re-auth required" });
+    // }
 
     await logEvent(userId, 'DATA_REQUEST', { format: 'PDF' });
-
-    // const auditId = await createAudit({ userId, action: "EXPORT_REQUEST" });
     const dataBundle = await aggregateUserData(userId);
 
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({
+      autoFirstPage: true, // or false if you add pages manually
+    });
 
-    // await createAudit({ userId, action: "EXPORT_CREATED", meta: { auditId }});
+    // Set headers BEFORE piping
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="user-data.pdf"',
+      // 'Cache-Control': 'no-store', // optional
+    });
+    res.status(200);
 
+    // Handle stream errors explicitly
+    doc.on('error', (err) => {
+      console.error('PDF stream error:', err);
+      // Only attempt once—headers may be already sent.
+      if (!res.headersSent) {
+        res.status(500).json({ success: false, message: 'PDF generation error' });
+      } else {
+        // End the response if possible
+        try { res.end(); } catch {}
+      }
+    });
+
+    // End response when PDF finishes
+    doc.on('end', () => {
+      // res.end() will be called by the stream once finished
+    });
+
+    // Pipe AFTER listeners set
+    doc.pipe(res);
+
+    // Generate the PDF contents
     await logEvent(userId, 'DATA_EXPORT', { format: 'PDF' });
+    generateUserPdf(doc, dataBundle); // your function writing to `doc`
 
-    res
-      .set({
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment;  filename="user-data.pdf`,
-      })
-      .status(200)
-    
-      doc.pipe(res);
-
-      generateUserPdf(doc, dataBundle);
-
-      doc.end();
-
+    // Finalize the PDF
+    doc.end();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Server Error." });
+    // Make sure this is JSON, distinct from the PDF path
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, message: 'Server Error.' });
+    }
   }
 };
 
 const exportUserDataJson = async (req, res) => {
+  console.log("controller")
   try {
-    const decodedUser = jwt.decode(req.session.user);
-    const { userId } = decodedUser;
-    const reauthenticated = await requireReauth(req, userId);
-    if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
+    console.log("testing")
+    const { userId } = req.user;
+    //const reauthenticated = await requireReauth(req, userId);
+    //if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
     
     await logEvent(userId, 'DATA_REQUEST', { format: 'JSON' });
 
