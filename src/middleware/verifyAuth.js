@@ -3,13 +3,15 @@ const {createAccessToken} = require('../utils/tokenUtils')
 const config = require('../config.js');
 
 module.exports = async function verifyAuth(req, res, next) {
-    const authHeader = req.headers.authorization
+    /*const authHeader = req.headers.authorization
 
 	let token;
 
 	if (authHeader && authHeader.startsWith("Bearer ")) {
 		token = authHeader.split(" ")[1];
-	}
+	}*/
+
+	const token = req.cookies.accessToken;
 
 	if (!token) {
 		return res.status(401).json({ message: "Authorization token required." })
@@ -20,7 +22,7 @@ module.exports = async function verifyAuth(req, res, next) {
 		next()
 	}
 	catch (error) {
-        console.log(error)
+        console.log(authHeader)
 		if (error.name !== "TokenExpiredError") {
             return res.status(401).json({ error: "Invalid token." });
         }

@@ -2,6 +2,10 @@ const express = require('express');
 const helmet = require("helmet");
 const config = require('./config.js');
 const journalRoutes = require('./routes/journalRoutes');
+const gdprRoutes = require('./routes/gdprRoutes');
+const meRoutes = require('./routes/meRoutes');
+const consentRoutes = require('./routes/consentRoutes');
+const consentUUID = require('./middleware/consentUUID');
 const cors = require("cors");
 
 const app = express();
@@ -28,6 +32,11 @@ if(config.CORS_ENABLED) {
 app.use(helmet());
 app.use(express.json());
 
+app.use(consentUUID);
+
 app.use('/journal', journalRoutes);
+app.use('/gdpr', gdprRoutes);
+app.use('/me', meRoutes);
+app.use('/consent', consentRoutes);
 
 module.exports = app;

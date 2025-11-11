@@ -10,7 +10,7 @@ const DEFAULT_REAUTH_WINDOW_MS = process.env.REAUTH_WINDOW_MS || 5 * 60 * 1000
 let DEFAULT_SECURE = true;
 let DEFAULT_HTTP_ONLY = true;
 let DEFAULT_SAME_SITE = "strict";
-let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173', 'https://localhost:5173', 'http://localhost:6006']
+let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173', 'https://localhost:5173', 'https://localhost:4173', 'http://localhost:6006']
 let ALLOW_EMPTY_ORIGIN = false;
 let DEFAULT_CORS_ENABLED = true;
 
@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === 'development') {
   DEFAULT_INTERNAL_API_KEY = DEFAULT_INTERNAL_API_KEY || "CCbN63OPOxjYwzJdqgvtPoF1YIMvdL6EIX+vKDBISURB1HaJ8SOdpWaHg5WPxKyU"
   DEFAULT_HTTP_ONLY = false;
   DEFAULT_SECURE = false;
-  DEFAULT_SAME_SITE = process.env.SAME_SITE || 'Lax';
+  DEFAULT_SAME_SITE = process.env.SAME_SITE || 'None';
   DEFAULT_CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS
     ? process.env.CORS_ALLOWED_ORIGINS.split(',')
     : DEFAULT_CORS_ALLOWED_ORIGINS;
